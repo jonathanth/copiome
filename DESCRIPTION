@@ -1,0 +1,12 @@
+Package: copiome
+Type: Package
+Title: COPSAC Utilities for Microbiome
+Version: 0.1.0
+Author: COPSAC microbiome office
+Maintainer: Jonathan Thorsen <jonathan.thorsen@dbac.dk>
+Description: More about what it does (maybe more than one line)
+    Use four spaces when indenting paragraphs within the Description.
+License: Hope it's useful for someone
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 7.0.2
