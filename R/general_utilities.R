@@ -7,7 +7,10 @@
 #' @export
 #'
 #' @examples
-#' transform_sample_counts(phy, relabu)
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' gp_ra <- transform_sample_counts(GlobalPatterns, relabu)
+#' sample_sums(gp_ra)
 relabu <- function(x){
   x/sum(x)
 }
@@ -22,11 +25,12 @@ relabu <- function(x){
 #' @export
 #'
 #' @examples
-#' library(tidyverse)
+#' library(dplyr)
+#' library(magrittr)
 #' glm(factor(am) ~ disp, data = mtcars, family = binomial) %>% tidylog(exp = TRUE, conf.int = TRUE)
 #'
 tidylog <- function(model, ...){
-  require(broom)
-  tidy(model, ...) %>%
-    mutate(n = nobs(model), n_missing = nrow(model$data) - n)
+  dplyr::mutate(broom::tidy(model, ...),
+                n = stats::nobs(model),
+                n_missing = nrow(model$data) - n)
 }

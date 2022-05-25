@@ -12,11 +12,8 @@
 #' mradat <- make_mradat(GlobalPatterns)
 #' head(mradat)
 make_mradat <- function(phy){
-  require(phyloseq)
-  require(tidyverse)
-  data.frame(tax = taxa_names(phy),
-             mra = rowMeans(phy %>% transform_sample_counts(function(x) x/sum(x)) %>%
-                              otu_table),
-             prevalence = rowMeans(otu_table(phy) > 0),
-             tax_table(phy) %>% as("matrix") %>% as.data.frame)
+  data.frame(tax = phyloseq::taxa_names(phy),
+             mra = rowMeans(phyloseq::otu_table(phyloseq::transform_sample_counts(phy, function(x) x/sum(x)))),
+             prevalence = rowMeans(phyloseq::otu_table(phy) > 0),
+             as.data.frame(methods::as(phyloseq::tax_table(phy), "matrix")))
 }

@@ -20,7 +20,8 @@ Tidy function for logistic regression
 Adds n and n_missing
 }
 \examples{
-library(tidyverse)
+library(dplyr)
+library(magrittr)
 glm(factor(am) ~ disp, data = mtcars, family = binomial) \%>\% tidylog(exp = TRUE, conf.int = TRUE)
 
 }

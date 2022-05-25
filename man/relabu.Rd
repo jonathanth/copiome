@@ -16,5 +16,8 @@ A numeric vector of relative abundances
 Compute relative abundances
 }
 \examples{
-transform_sample_counts(phy, relabu)
+library(phyloseq)
+data(GlobalPatterns)
+gp_ra <- transform_sample_counts(GlobalPatterns, relabu)
+sample_sums(gp_ra)
 }
