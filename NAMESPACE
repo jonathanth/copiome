@@ -2,4 +2,6 @@
 
 export(make_mradat)
 export(relabu)
+export(roundex)
+export(tidycox)
 export(tidylog)

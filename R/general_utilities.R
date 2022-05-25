@@ -34,3 +34,40 @@ tidylog <- function(model, ...){
                 n = stats::nobs(model),
                 n_missing = nrow(model$data) - n)
 }
+
+
+
+#' Tidy function for cox regression
+#' Adds n and n_missing
+#'
+#' @param model The coxph model object
+#' @param ... Other arguments passed on to tidy()
+#'
+#' @return A tidy data.frame
+#' @export
+#'
+#' @examples
+#' library(survival)
+#' data("cancer")
+#' coxmodel <- coxph(Surv(time, status) ~ sex + age, data = cancer)
+#' tidycox(coxmodel)
+tidycox <- function(model, ...){
+  tab <- broom::tidy(model, ...)
+  data.frame(tab, n = model$n, n_missing = length(model$na.action))
+}
+
+#' Round to exact number of digits
+#' Useful when plotting, since round() cuts away zeroes at the end
+#'
+#' @param vec Numeric vector that you want to round
+#' @param n number of decimal places
+#'
+#' @return Character vector with exact rounding.
+#' @export
+#'
+#' @examples
+#' round(3.9999, 3)
+#' roundex(3.9999, 3)
+roundex <- function(vec, n){
+  sprintf(paste0("%.", n, "f"), vec)
+}

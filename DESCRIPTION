@@ -18,4 +18,5 @@ Imports:
     tibble,
     phyloseq,
     broom,
-    methods
+    methods,
+    survival
