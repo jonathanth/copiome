@@ -1,4 +1,5 @@
-# copiome
+# copiome <img src='man/figures/hex-copiome.png' align="right" height="139" />
+
 An R package with utilities shared by the COPSAC microbiome office
 ```
 # Install and load
