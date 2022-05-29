@@ -17,3 +17,23 @@ make_mradat <- function(phy){
              prevalence = rowMeans(phyloseq::otu_table(phy) > 0),
              as.data.frame(methods::as(phyloseq::tax_table(phy), "matrix")))
 }
+
+#' Return OTU table from phyloseq object as data.frame
+#'
+#' @param phy A phyloseq object.
+#'
+#' @return a data.frame containing abundances with samples (rows) and taxa(columns).
+#' @export
+#'
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' otumat <- get_otu(GlobalPatterns)
+#' head(otumat)[,1:5]
+get_otu <- function(phy) {
+  otu <- phyloseq::otu_table(phy)
+  if (phyloseq::taxa_are_rows(otu)) {
+    otu <- t(otu)
+  }
+  return(data.frame(methods::as(otu, "matrix")))
+}

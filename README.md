@@ -12,6 +12,7 @@ Current functions
 phyloseq utilities
 ```
 make_mradat
+get_otu
 ```
 
 General utilities
