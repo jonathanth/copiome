@@ -19,4 +19,5 @@ Imports:
     phyloseq,
     broom,
     methods,
-    survival
+    survival,
+    rlang

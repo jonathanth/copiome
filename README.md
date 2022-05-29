@@ -12,8 +12,9 @@ Current functions
 phyloseq utilities
 ```
 make_mradat
-get_otu
+otu_df
 sample_df
+tax_df
 ```
 
 General utilities

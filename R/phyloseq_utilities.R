@@ -55,3 +55,30 @@ otu_df <- function(phy) {
 sample_df <- function(phy) {
   return(methods::as(phyloseq::sample_data(phy), "data.frame"))
 }
+
+
+
+#' Return tax data from phyloseq object as data.frame
+#'
+#' @param phy A phyloseq object.
+#'
+#' @return a data.frame containing tax data with taxa (rows) and ranks (columns). If the phyloseq object is
+#' agglomerated to lower taxonomic resolution, the lower ranks are not shown.
+#' @export
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' taxmat <- tax_df(GlobalPatterns)
+#' head(taxmat)
+tax_df = function(phy) {
+  taxmat <- data.frame(phy@tax_table@.Data)
+  group <- taxmat %>%
+    dplyr::select_if(~ !all(is.na(.))) %>% colnames %>% utils::tail(1)
+  if (tolower(group) != "species") {
+    taxmat <- taxmat %>%
+      .data[1:which(group == colnames(.data))[[1]]]
+  }
+  return(taxmat)
+}
