@@ -28,9 +28,9 @@ make_mradat <- function(phy){
 #' @examples
 #' library(phyloseq)
 #' data(GlobalPatterns)
-#' otumat <- get_otu(GlobalPatterns)
+#' otumat <- otu_df(GlobalPatterns)
 #' head(otumat)[,1:5]
-get_otu <- function(phy) {
+otu_df <- function(phy) {
   otu <- phyloseq::otu_table(phy)
   if (phyloseq::taxa_are_rows(otu)) {
     otu <- t(otu)
