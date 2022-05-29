@@ -23,4 +23,5 @@ relabu
 tidylog
 tidycox
 roundex
+subset_dist
 ```

@@ -71,3 +71,22 @@ tidycox <- function(model, ...){
 roundex <- function(vec, n){
   sprintf(paste0("%.", n, "f"), vec)
 }
+
+
+#' Remove samples from distance object based on the samples of a phyloseq object
+#'
+#' @param d A numeric matrix, data frame or "dist" object.
+#' @param phy A phyloseq object.
+#'
+#' @return A subsetted "dist" object.
+#' @export
+#' @importFrom stats as.dist
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' dist.bray <- distance(GlobalPatterns, "bray")
+#' subset_dist(dist.bray, subset_samples(GlobalPatterns, SampleType == "Feces"))
+subset_dist <- function(d, phy) {
+  keep <- phyloseq::sample_names(phy)
+  return(as.dist(as.matrix(d)[keep, keep]))
+}
