@@ -37,3 +37,21 @@ get_otu <- function(phy) {
   }
   return(data.frame(methods::as(otu, "matrix")))
 }
+
+
+
+#' Return sample data from phyloseq object as data.frame.
+#'
+#' @param phy A phyloseq object.
+#'
+#' @return a data.frame containing sample data with samples (rows) and metadata (columns).
+#' @export
+#'
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' samdat <- sample_df(GlobalPatterns)
+#' head(samdat)[,1:5]
+sample_df <- function(phy) {
+  return(methods::as(phyloseq::sample_data(phy), "data.frame"))
+}

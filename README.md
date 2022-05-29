@@ -13,6 +13,7 @@ phyloseq utilities
 ```
 make_mradat
 get_otu
+sample_df
 ```
 
 General utilities
