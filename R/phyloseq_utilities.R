@@ -35,7 +35,8 @@ otu_df <- function(phy) {
   if (phyloseq::taxa_are_rows(otu)) {
     otu <- t(otu)
   }
-  return(data.frame(methods::as(otu, "matrix")))
+  otu <- as.data.frame(methods::as(otu, "matrix"))
+  return(otu)
 }
 
 
