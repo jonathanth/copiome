@@ -75,7 +75,8 @@ sample_df <- function(phy) {
 tax_df = function(phy) {
   taxmat <- data.frame(phy@tax_table@.Data)
   group <- taxmat %>%
-    dplyr::select_if(~ !all(is.na(.))) %>% colnames %>% utils::tail(1)
+    dplyr::select_if(~ !all(is.na(.))) %>% colnames %>% utils::tail(1) %>%
+    dplyr::mutate(tax = phyloseq::taxa_names(phy))
   if (tolower(group) != "species") {
     taxmat <- taxmat %>%
       .data[1:which(group == colnames(.data))[[1]]]
@@ -106,11 +107,11 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
   . <- NULL
   ab <- otu_df(phy) %>%
     tidyr::pivot_longer(cols = colnames(.),
-                        names_to="taxid",
+                        names_to="tax",
                         values_to="abundance") %>%
     dplyr::mutate(id = rep(phyloseq::sample_names(phy),
                            each=phyloseq::ntaxa(phy)),
-                  taxid = rep(phyloseq::taxa_names(phy),
+                  tax = rep(phyloseq::taxa_names(phy),
                               each=phyloseq::nsamples(phy))) %>%
     dplyr::select(id, dplyr::everything())
 
@@ -128,7 +129,7 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
       tax <- tax_df(phy)
     }
     ab <- ab %>%
-      dplyr::left_join(tax %>% dplyr::mutate(taxid = phyloseq::taxa_names(phy)))
+      dplyr::left_join(tax %>% dplyr::mutate(tax = phyloseq::taxa_names(phy)))
   }
   if (sample) {
     sam <- sample_df(phy) %>%
