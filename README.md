@@ -17,6 +17,7 @@ sample_df
 tax_df
 abundance_df
 transform_phy
+filter_phy
 ```
 
 General utilities

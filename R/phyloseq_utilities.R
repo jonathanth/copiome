@@ -273,3 +273,51 @@ transform_phy <-  function(phy, transform="compositional",
   phyloseq::otu_table(phy) <- phyloseq::otu_table(xt, taxa_are_rows = TRUE)
   return(phy)
 }
+
+
+
+#' Filter phyloseq object based on abundance and prevalence.
+#'
+#' @param phy A phyloseq object
+#' @param abundance Minimum abundance (in relative abundance) to retain. Default is NULL.
+#' @param prevalence Minimum prevalence (in percent) to retain. Default is NULL.
+#' @param compositional FALSE/TRUE if count table is relative (compositional). Default is TRUE. If FALSE, absolute counts are returned but filtering is done in relative abundances.
+#' @param tss FALSE/TRUE if relative abundance is re-calculated after filtering taxa. Default is TRUE.
+#'
+#' @return A filtered phyloseq object.
+#' @export
+#'
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' GlobalPatterns
+#' filter_phy(GlobalPatterns, abundance = 0.01, prevalence = 5)
+filter_phy <-  function(phy, abundance=NULL, prevalence=NULL, compositional=TRUE,
+                        tss = TRUE) {
+  if (!compositional) {
+    phyt <- transform_phy(phy, transform = "compositional")
+  } else {
+    phyt <- phy
+  }
+  if (!is.null(abundance)) {
+    phyt <- phyloseq::filter_taxa(phyt, function(x) mean(x) > abundance, TRUE)
+  }
+  if (!is.na(prevalence)) {
+    phyt <- phyloseq::prune_taxa(phyloseq::taxa_sums(transform_phy(phyt, transform="pa"))
+                     >= ceiling(prevalence * phyloseq::nsamples(phy) / 100), phyt)
+  }
+
+  if (compositional & tss) {
+    phyt <- transform_phy(phyt, transform = "compositional")
+    return(phyt)
+  }
+
+  if (compositional & !tss) {
+    return(phyt)
+  }
+
+  if (!compositional) {
+    phyt <- phyloseq::prune_taxa(phyloseq::taxa_names(phyt), phy)
+    return(phyt)
+  }
+}
