@@ -3,6 +3,7 @@
 export(abundance_df)
 export(make_mradat)
 export(otu_df)
+export(prevalence_df)
 export(relabu)
 export(roundex)
 export(sample_df)

@@ -143,3 +143,40 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
   }
   return(ab)
 }
+
+
+
+#' Taxa data.frame prevalence
+#'
+#' @param ps A phyloseq object.
+#' @param tax FALSE/TRUE for taxonomic information. Default is FALSE.
+#'
+#' @return Prevalence data.frame in long format. freq = frequency (range 0-1) and prevalence (%). Each row is a sample feature.
+#' @export
+#' @importFrom magrittr %>%
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' prev <- prevalence_df(GlobalPatterns, tax = TRUE)
+#' head(prev)
+prevalence_df = function(phy, tax = FALSE) {
+  . <- NULL
+  prev <- phy %>%
+    transform_ps(., transform="pa") %>%
+    otu_df(.)
+
+  prevdf = data.frame(tax = rep(phyloseq::taxa_names(phy),
+                                each = phyloseq::nsamples(phy)),
+                      n = unname(rowSums(prev)),
+                      N = ncol(prev)) %>%
+    dplyr::mutate(., freq = n/N,
+           prevalence = freq*100)
+
+  if (tax) {
+    prevdf <- prevdf %>%
+      dplyr::left_join(., tax_df(phy) %>%
+                         dplyr::mutate(tax = phyloseq::taxa_names(phy)))
+  }
+
+  return(prevdf)
+}

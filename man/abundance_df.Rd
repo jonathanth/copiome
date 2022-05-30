@@ -26,6 +26,6 @@ Return abundance long-formatted data.frame from phyloseq object.
 \examples{
 library(phyloseq)
 data(GlobalPatterns)
-ab <- abundance_df(GlobalPatterns)
+ab <- abundance_df(GlobalPatterns, tax = TRUE, sample = TRUE, vars = c("SampleType"))
 head(ab)
 }
