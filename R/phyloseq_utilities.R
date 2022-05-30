@@ -150,7 +150,7 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
 
 #' Taxa data.frame prevalence
 #'
-#' @param ps A phyloseq object.
+#' @param phy A phyloseq object.
 #' @param tax FALSE/TRUE for taxonomic information. Default is FALSE.
 #'
 #' @return Prevalence data.frame in long format. freq = frequency (range 0-1) and prevalence (%). Each row is a sample feature.
@@ -161,10 +161,10 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
 #' data(GlobalPatterns)
 #' prev <- prevalence_df(GlobalPatterns, tax = TRUE)
 #' head(prev)
-prevalence_df = function(phy, tax = FALSE) {
+prevalence_df <-  function(phy, taxa = FALSE) {
   . <- NULL
   prev <- phy %>%
-    transform_ps(., transform="pa") %>%
+    transform_phy(., transform="pa") %>%
     otu_df(.)
 
   prevdf = data.frame(tax = rep(phyloseq::taxa_names(phy),
@@ -174,11 +174,101 @@ prevalence_df = function(phy, tax = FALSE) {
     dplyr::mutate(., freq = n/N,
            prevalence = freq*100)
 
-  if (tax) {
+  if (taxa) {
     prevdf <- prevdf %>%
       dplyr::left_join(., tax_df(phy) %>%
                          dplyr::mutate(tax = phyloseq::taxa_names(phy)))
   }
 
   return(prevdf)
+}
+
+
+
+#' Common transformations for phyloseq count data.
+#'
+#' @param phy A phyloseq object.
+#' @param transform Transformation to be applied: "compositional" (i.e. relative abundance), "clr" (centered log ratio), "log" (log10) and "pa" (presence/absence).
+#' By default "clr" applies a pseudocount of min(relative abundance)/2 and "log" applies a pseudocount of min/2 before taking logs. The user can also define a certain value
+#' for the pseudocount.
+#' @param pseudocount Pseudocount to be used in "clr" or "log" transformations. Default is NULL
+#'
+#' @return Transformed phyloseq object
+#' @export
+#'
+#' @examples
+#' library(phyloseq)
+#' data(esophagus)
+#'
+#' # No transformation
+#' head(otu_df(esophagus))
+#'
+#' # Relative abundance
+#' head(otu_df(transform_phy(esophagus, transform = "compositional")))
+#'
+#' # Centered log-ratio (clr) transformation
+#' head(otu_df(transform_phy(esophagus, transform = "clr")))
+#' head(otu_df(transform_phy(esophagus, transform = "clr", pseudocount = 0.1)))
+#'
+#' # Log10 transformation
+#' head(otu_df(transform_phy(esophagus, transform = "log")))
+#' head(otu_df(transform_phy(esophagus, transform = "log", pseudocount = 1)))
+#'
+#' # Presence/absence transformation
+#' head(otu_df(transform_phy(esophagus, transform = "log")))
+transform_phy <-  function(phy, transform="compositional",
+                          pseudocount=NULL) {
+  x <- otu_df(phy) %>% t()
+  if (transform == "compositional") {
+    print("x/max(sum(x))")
+      xt <- apply(x, 2, function(x) {
+        x/max(sum(x), 1e-32)})
+  }
+  else if (transform == "clr") {
+    if (any(x < 0)) {
+      stop("Non-negative counts needed for clr transformation.")
+    }
+    xt <- apply(x, 2, function(x) {
+      x/max(sum(x), 1e-32)})
+    colnames(xt) <- colnames(x)
+    if (any(xt == 0)) {
+      v <- as.vector(xt)
+      if (is.null(pseudocount)) {
+        print("log(x + min/2) - mean(log(x + min/2))")
+        minval <- min(v[v > 0])/2
+        xt <- xt + minval
+      } else {
+        print(paste0("log(x + ", pseudocount, ") - mean(log(x + ", pseudocount, "))"))
+        xt <- xt + pseudocount
+      }
+    }
+    d <- t(apply(xt, 2, function(x) {
+      log(x) - mean(log(x))
+    }))
+    if (nrow(d) == ncol(xt)) {
+      rownames(d) <- colnames(xt)
+      colnames(d) <- rownames(xt)
+    }
+    else {
+      colnames(d) <- colnames(xt)
+      rownames(d) <- rownames(xt)
+    }
+    xt <- t(d)
+  }
+  else if (transform == "log") {
+    if (is.null(pseudocount)) {
+      print("log10(x + min/2)")
+      xt <- x %>% apply(2, function(x) log(x + min(x[x > 0])/2))
+    } else {
+      print(paste0("log10(x + ", pseudocount, ")"))
+      xt <- x %>% apply(2, function(x) log(x + pseudocount))
+    }
+  }
+  else if (transform == "pa") {
+    print("presence/absence")
+    xt <- x
+    xt[xt > 0] <- 1
+  }
+  otu_table(phy) <- phyloseq::otu_table(xt, taxa_are_rows = TRUE)
+  return(phy)
 }
