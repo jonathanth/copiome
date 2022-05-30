@@ -4,12 +4,12 @@
 \alias{prevalence_df}
 \title{Taxa data.frame prevalence}
 \usage{
-prevalence_df(phy, tax = FALSE)
+prevalence_df(phy, taxa = FALSE)
 }
 \arguments{
-\item{tax}{FALSE/TRUE for taxonomic information. Default is FALSE.}
+\item{phy}{A phyloseq object.}
 
-\item{ps}{A phyloseq object.}
+\item{taxa}{FALSE/TRUE for taxonomic information. Default is FALSE.}
 }
 \value{
 Prevalence data.frame in long format. freq = frequency (range 0-1) and prevalence (%). Each row is a sample feature.

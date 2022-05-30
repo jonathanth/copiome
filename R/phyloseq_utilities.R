@@ -76,12 +76,13 @@ sample_df <- function(phy) {
 tax_df = function(phy) {
   taxmat <- data.frame(phy@tax_table@.Data)
   group <- taxmat %>%
-    dplyr::select_if(~ !all(is.na(.))) %>% colnames %>% utils::tail(1) %>%
-    dplyr::mutate(tax = phyloseq::taxa_names(phy))
+    dplyr::select_if(~ !all(is.na(.))) %>% colnames %>% utils::tail(1)
   if (tolower(group) != "species") {
     taxmat <- taxmat %>%
       .data[1:which(group == colnames(.data))[[1]]]
   }
+  taxmat <- taxmat %>%
+    dplyr::mutate(tax = phyloseq::taxa_names(phy))
   return(taxmat)
 }
 
@@ -89,7 +90,7 @@ tax_df = function(phy) {
 #' Return abundance long-formatted data.frame from phyloseq object.
 #'
 #' @param phy A phyloseq object
-#' @param tax FALSE/TRUE for taxonomic information. Default is FALSE.
+#' @param taxa FALSE/TRUE for taxonomic information. Default is FALSE.
 #' @param sample FALSE/TRUE for sample metadata. Default is FALSE.
 #' @param id sample or study identifier. Default is "abcno".
 #' @param vars List of variables of interest from the metadata (sample data).
@@ -101,9 +102,9 @@ tax_df = function(phy) {
 #' @examples
 #' library(phyloseq)
 #' data(GlobalPatterns)
-#' ab <- abundance_df(GlobalPatterns, tax = TRUE, sample = TRUE, vars = c("SampleType"))
+#' ab <- abundance_df(GlobalPatterns, taxa = TRUE, sample = TRUE, vars = c("SampleType"))
 #' head(ab)
-abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
+abundance_df = function(phy, taxa=FALSE, sample=FALSE, id=character(0),
                         vars=c()) {
   . <- NULL
   ab <- otu_df(phy) %>%
@@ -121,16 +122,16 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
       dplyr::mutate(abcno = rep(sample_df(phy)[[id]],
                                 each=phyloseq::ntaxa(phy)))
   }
-  if (tax) {
-    group <- utils::tail(colnames(tax_df(phy)), 1)
+  if (taxa) {
+    group <- utils::tail(colnames(tax_df(phy))[colnames(tax_df(phy)) != "tax"], 1)
     if (tolower(group) != "species") {
-      tax <- tax_df(phy) %>%
+      taxmat <- tax_df(phy) %>%
         .data[1:which(group == colnames(.))[[1]]]
     } else {
-      tax <- tax_df(phy)
+      taxmat <- tax_df(phy)
     }
     ab <- ab %>%
-      dplyr::left_join(tax %>% dplyr::mutate(tax = phyloseq::taxa_names(phy)))
+      dplyr::left_join(taxmat %>% dplyr::mutate(tax = phyloseq::taxa_names(phy)))
   }
   if (sample) {
     sam <- sample_df(phy) %>%
@@ -151,7 +152,7 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
 #' Taxa data.frame prevalence
 #'
 #' @param phy A phyloseq object.
-#' @param tax FALSE/TRUE for taxonomic information. Default is FALSE.
+#' @param taxa FALSE/TRUE for taxonomic information. Default is FALSE.
 #'
 #' @return Prevalence data.frame in long format. freq = frequency (range 0-1) and prevalence (%). Each row is a sample feature.
 #' @export
@@ -162,7 +163,7 @@ abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
 #' prev <- prevalence_df(GlobalPatterns, tax = TRUE)
 #' head(prev)
 prevalence_df <-  function(phy, taxa = FALSE) {
-  . <- NULL
+  . <- n <- N <- freq <- NULL
   prev <- phy %>%
     transform_phy(., transform="pa") %>%
     otu_df(.)
@@ -269,6 +270,6 @@ transform_phy <-  function(phy, transform="compositional",
     xt <- x
     xt[xt > 0] <- 1
   }
-  otu_table(phy) <- phyloseq::otu_table(xt, taxa_are_rows = TRUE)
+  phyloseq::otu_table(phy) <- phyloseq::otu_table(xt, taxa_are_rows = TRUE)
   return(phy)
 }

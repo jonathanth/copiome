@@ -4,12 +4,12 @@
 \alias{abundance_df}
 \title{Return abundance long-formatted data.frame from phyloseq object.}
 \usage{
-abundance_df(phy, tax = FALSE, sample = FALSE, id = character(0), vars = c())
+abundance_df(phy, taxa = FALSE, sample = FALSE, id = character(0), vars = c())
 }
 \arguments{
 \item{phy}{A phyloseq object}
 
-\item{tax}{FALSE/TRUE for taxonomic information. Default is FALSE.}
+\item{taxa}{FALSE/TRUE for taxonomic information. Default is FALSE.}
 
 \item{sample}{FALSE/TRUE for sample metadata. Default is FALSE.}
 
@@ -26,6 +26,6 @@ Return abundance long-formatted data.frame from phyloseq object.
 \examples{
 library(phyloseq)
 data(GlobalPatterns)
-ab <- abundance_df(GlobalPatterns, tax = TRUE, sample = TRUE, vars = c("SampleType"))
+ab <- abundance_df(GlobalPatterns, taxa = TRUE, sample = TRUE, vars = c("SampleType"))
 head(ab)
 }
