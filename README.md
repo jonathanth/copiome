@@ -15,6 +15,7 @@ make_mradat
 otu_df
 sample_df
 tax_df
+abundance_df
 ```
 
 General utilities

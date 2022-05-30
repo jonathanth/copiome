@@ -82,3 +82,64 @@ tax_df = function(phy) {
   }
   return(taxmat)
 }
+
+
+#' Return abundance long-formatted data.frame from phyloseq object.
+#'
+#' @param phy A phyloseq object
+#' @param tax FALSE/TRUE for taxonomic information. Default is FALSE.
+#' @param sample FALSE/TRUE for sample metadata. Default is FALSE.
+#' @param id sample or study identifier. Default is "abcno".
+#' @param vars List of variables of interest from the metadata (sample data).
+#'
+#' @return Abundance data.frame in long format. Each row is a sample feature.
+#' @export
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' ab <- abundance_df(GlobalPatterns, tax = TRUE, sample = TRUE, vars = c("SampleType"))
+#' head(ab)
+abundance_df = function(phy, tax=FALSE, sample=FALSE, id=character(0),
+                        vars=c()) {
+  . <- NULL
+  ab <- otu_df(phy) %>%
+    tidyr::pivot_longer(cols = colnames(.),
+                        names_to="taxid",
+                        values_to="abundance") %>%
+    dplyr::mutate(id = rep(phyloseq::sample_names(phy),
+                           each=phyloseq::ntaxa(phy)),
+                  taxid = rep(phyloseq::taxa_names(phy),
+                              each=phyloseq::nsamples(phy))) %>%
+    dplyr::select(id, dplyr::everything())
+
+  if (!rlang::is_empty(id)) {
+    ab <- ab %>%
+      dplyr::mutate(abcno = rep(sample_df(phy)[[id]],
+                                each=phyloseq::ntaxa(phy)))
+  }
+  if (tax) {
+    group <- utils::tail(colnames(tax_df(phy)), 1)
+    if (tolower(group) != "species") {
+      tax <- tax_df(phy) %>%
+        .data[1:which(group == colnames(.))[[1]]]
+    } else {
+      tax <- tax_df(phy)
+    }
+    ab <- ab %>%
+      dplyr::left_join(tax %>% dplyr::mutate(taxid = phyloseq::taxa_names(phy)))
+  }
+  if (sample) {
+    sam <- sample_df(phy) %>%
+      dplyr::mutate(id = phyloseq::sample_names(phy))
+    if (length(vars)>0) {
+     sam <- sam %>%
+        dplyr::select_at(.vars=vars) %>%
+        dplyr::mutate(id = phyloseq::sample_names(phy))
+    }
+    ab <- ab %>%
+      dplyr::left_join(sam)
+  }
+  return(ab)
+}
