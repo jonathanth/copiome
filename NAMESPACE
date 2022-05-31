@@ -2,6 +2,7 @@
 
 export(abundance_df)
 export(filter_phy)
+export(get_virome_host_phy)
 export(make_mradat)
 export(otu_df)
 export(prevalence_df)
