@@ -64,7 +64,7 @@ sample_df <- function(phy) {
 #' @param phy A phyloseq object.
 #'
 #' @return a data.frame containing tax data with taxa (rows) and ranks (columns). If the phyloseq object is
-#' agglomerated to lower taxonomic resolution, the lower ranks are not shown.
+#' agglomerated to lower taxonomic resolution, the higher ranks are not shown.
 #' @export
 #' @importFrom magrittr %>%
 #' @importFrom rlang .data
@@ -320,4 +320,20 @@ filter_phy <-  function(phy, abundance=NULL, prevalence=NULL, compositional=TRUE
     phyt <- phyloseq::prune_taxa(phyloseq::taxa_names(phyt), phy)
     return(phyt)
   }
+}
+
+
+
+#' Return virome phyloseq object formatted ready for agglomerating bacteria host taxa.
+#'
+#' @param phy A virome phyloseq object with host information.
+#'
+#' @return A virome phyloseq object with taxonomic information related to host, i.e. easy to agglomerate.
+#' @export
+#' @importFrom magrittr %>%
+get_virome_host_phy <- function(phy) {
+  taxmat <- tax_df(phy) %>%
+    dplyr::select(hostTaxid, hostKingdom, hostPhylum, hostClass, hostOrder, hostFamily, hostGenus, hostSpecies, species, OTU)
+  phyloseq::tax_table(phy) <- phyloseq::tax_table(as.matrix(taxmat))
+  return(phy)
 }

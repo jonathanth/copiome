@@ -11,7 +11,7 @@ tax_df(phy)
 }
 \value{
 a data.frame containing tax data with taxa (rows) and ranks (columns). If the phyloseq object is
-agglomerated to lower taxonomic resolution, the lower ranks are not shown.
+agglomerated to lower taxonomic resolution, the higher ranks are not shown.
 }
 \description{
 Return tax data from phyloseq object as data.frame
