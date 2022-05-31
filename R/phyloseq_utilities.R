@@ -74,12 +74,12 @@ sample_df <- function(phy) {
 #' taxmat <- tax_df(GlobalPatterns)
 #' head(taxmat)
 tax_df = function(phy) {
+  . <- NULL
   taxmat <- data.frame(phy@tax_table@.Data)
   group <- taxmat %>%
     dplyr::select_if(~ !all(is.na(.))) %>% colnames %>% utils::tail(1)
   if (tolower(group) != "species") {
-    taxmat <- taxmat %>%
-      .data[1:which(group == colnames(.data))[[1]]]
+    taxmat <- taxmat[1:which(group == colnames(taxmat))[[1]]]
   }
   taxmat <- taxmat %>%
     dplyr::mutate(tax = phyloseq::taxa_names(phy))
