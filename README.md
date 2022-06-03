@@ -19,6 +19,7 @@ abundance_df
 transform_phy
 filter_phy
 get_virome_host_phy
+na_phy
 ```
 
 General utilities
