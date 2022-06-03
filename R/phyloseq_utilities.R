@@ -337,3 +337,21 @@ get_virome_host_phy <- function(phy) {
   phyloseq::tax_table(phy) <- phyloseq::tax_table(as.matrix(taxmat))
   return(phy)
 }
+
+
+
+#' Return number of NAs in sample data
+#'
+#' @param phy A phyloseq object
+#'
+#' @return returns a named vector of the number of NAs in sample variables
+#' @export
+#'
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' na_phy(GlobalPatterns)
+na_phy <- function(phy) {
+  apply(apply(sample_df(phy), 2, is.na), 2, sum)
+}
+
