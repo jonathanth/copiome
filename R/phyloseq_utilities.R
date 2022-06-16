@@ -211,7 +211,7 @@ prevalence_df <-  function(phy, taxa = FALSE) {
 #' head(otu_df(transform_phy(esophagus, transform = "clr")))
 #' head(otu_df(transform_phy(esophagus, transform = "clr", pseudocount = 0.1)))
 #'
-#' # Log10 transformation
+#' # Log transformation
 #' head(otu_df(transform_phy(esophagus, transform = "log")))
 #' head(otu_df(transform_phy(esophagus, transform = "log", pseudocount = 1)))
 #'
@@ -258,10 +258,10 @@ transform_phy <-  function(phy, transform="compositional",
   }
   else if (transform == "log") {
     if (is.null(pseudocount)) {
-      print("log10(x + min/2)")
+      print("log(x + min/2)")
       xt <- x %>% apply(2, function(x) log(x + min(x[x > 0])/2))
     } else {
-      print(paste0("log10(x + ", pseudocount, ")"))
+      print(paste0("log(x + ", pseudocount, ")"))
       xt <- x %>% apply(2, function(x) log(x + pseudocount))
     }
   }
