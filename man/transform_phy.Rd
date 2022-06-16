@@ -35,7 +35,7 @@ head(otu_df(transform_phy(esophagus, transform = "compositional")))
 head(otu_df(transform_phy(esophagus, transform = "clr")))
 head(otu_df(transform_phy(esophagus, transform = "clr", pseudocount = 0.1)))
 
-# Log10 transformation
+# Log transformation
 head(otu_df(transform_phy(esophagus, transform = "log")))
 head(otu_df(transform_phy(esophagus, transform = "log", pseudocount = 1)))
 
