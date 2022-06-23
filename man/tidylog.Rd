@@ -2,13 +2,13 @@
 % Please edit documentation in R/general_utilities.R
 \name{tidylog}
 \alias{tidylog}
-\title{Tidy function for logistic regression
+\title{Tidy function for linear or logistic regression
 Adds n and n_missing}
 \usage{
 tidylog(model, ...)
 }
 \arguments{
-\item{model}{The glm model object}
+\item{model}{The lm/glm model object}
 
 \item{...}{Other arguments passed on to tidy()}
 }
@@ -16,7 +16,7 @@ tidylog(model, ...)
 A data.frame with model parameters, similar to tidy()
 }
 \description{
-Tidy function for logistic regression
+Tidy function for linear or logistic regression
 Adds n and n_missing
 }
 \examples{
