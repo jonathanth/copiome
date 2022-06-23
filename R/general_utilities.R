@@ -15,10 +15,10 @@ relabu <- function(x){
   x/sum(x)
 }
 
-#' Tidy function for logistic regression
+#' Tidy function for linear or logistic regression
 #' Adds n and n_missing
 #'
-#' @param model The glm model object
+#' @param model The lm/glm model object
 #' @param ... Other arguments passed on to tidy()
 #'
 #' @return A data.frame with model parameters, similar to tidy()
@@ -32,7 +32,7 @@ relabu <- function(x){
 tidylog <- function(model, ...){
   dplyr::mutate(broom::tidy(model, ...),
                 n = stats::nobs(model),
-                n_missing = nrow(model$data) - n)
+                n_missing = length(model$na.action))
 }
 
 
