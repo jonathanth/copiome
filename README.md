@@ -3,7 +3,7 @@
 An R package with utilities shared by the COPSAC microbiome office
 ```
 # Install and load
-remotes::install_github("jonathanth/copiome")
+remotes::install_github("jonathanth/copiome@main")
 library(copiome)
 ```
 
@@ -19,7 +19,7 @@ abundance_df
 transform_phy
 filter_phy
 get_virome_host_phy
-myadonis
+na_phy
 ```
 
 General utilities
