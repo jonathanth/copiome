@@ -334,8 +334,8 @@ filter_phy <-  function(phy, abundance=NULL, prevalence=NULL, compositional=TRUE
 get_virome_host_phy <- function(phy) {
   taxmat <- tax_df(phy) %>%
     dplyr::select_at(.vars=c("hostTaxid", "hostKingdom", "hostPhylum", "hostClass",
-                     "hostOrder", "hostFamily", "hostGenus", "hostSpecies",
-                     "species", "OTU"))
+                             "hostOrder", "hostFamily", "hostGenus", "hostSpecies",
+                             "species", "OTU"))
   phyloseq::tax_table(phy) <- phyloseq::tax_table(as.matrix(taxmat))
   return(phy)
 }
@@ -355,5 +355,109 @@ get_virome_host_phy <- function(phy) {
 #' na_phy(GlobalPatterns)
 na_phy <- function(phy) {
   apply(apply(sample_df(phy), 2, is.na), 2, sum)
+}
+
+
+
+#' PERMANOVA analysis easy set-up for block and non-block designs.
+#'
+#' @param dist Distance matrix.
+#' @param phy Phyloseq object.
+#' @param var Variable outcome of interest.
+#' @param covars Vector of covariates to adjust for.
+#' @param formula User-specified formula. If not provided, `dist ~ var (+ covars)`.
+#' @param nproc Number of parallel processors available to use.
+#' @param seed Random seed. Default is `123`.
+#' @param nperm Number of permutations required.
+#' @param verbose Printed output. Default is TRUE.
+#' @param by by = "terms" will assess significance for each term (sequentially from first to last), by = "margin" will assess the marginal effects of the terms (each marginal term analysed in a model with all other variables), and by = NULL will assess the overall significance of all terms together. Default is "margin".
+#' @param logvars Vector of (co)variables to log-transform. Must be included in `vars` or `covars`, too.
+#' @param block Name of group (strata) within which to constrain permutations.
+#' @param transient Default TRUE. If the variable outcome is a transient phenotype, when `TRUE` the groups evaluated are transient vs. cross-sectional diseased; when `FALSE` the groups evaluated are transient vs. healthy.
+#'
+#' @return Returns an anova.cca result as data.frame object with a new column for total observations (n) and missing (n_missing).
+
+#' @export
+#' @importFrom magrittr %>%
+#' @importFrom rlang .data
+#' @examples
+#' library(phyloseq)
+#' data(GlobalPatterns)
+#' sample_data(GlobalPatterns)$contaminated <- sample(c(rep(0, length = 8), rep(1, length = 18)))
+#' dist <- distance(transform_phy(GlobalPatterns, transform = "log", pseudocount = 1), method = "bray")
+#'
+#' ## non-block design
+#' myadonis(dist, GlobalPatterns, var = "contaminated", covars = c("SampleType"))
+#'
+#' ## with block design
+#' block <- "sampletype"
+#' myadonis(dist, GlobalPatterns, var = "contaminated", block = "SampleType")
+myadonis <- function(dist,
+                     phy,
+                     var,
+                     covars=c(),
+                     formula = NA,
+                     nproc = 1,
+                     seed = 123,
+                     nperm = 999,
+                     verbose = TRUE,
+                     by = "margin",
+                     logvars = c(),
+                     block = NA,
+                     transient = TRUE) {
+  phenodata <- sample_df(phy) %>%
+    dplyr::filter_at(dplyr::all_of(c(var, covars)),
+                     dplyr::all_vars(!is.na(.))) %>%
+    dplyr::mutate_at(.vars = logvars, .funs = log)
+  if (grepl("transient", var)) {
+    if (transient) {
+      phenodata <- phenodata[phenodata[[stringr::str_replace(var, "transient", "ever")]] == 1 | phenodata[[var]] == 1, ]
+    } else {
+      phenodata <- phenodata[phenodata[[stringr::str_replace(var, "transient", "ever")]] == 0 | phenodata[[var]] == 1, ]
+    }
+  }
+  dist <-  subset_dist(dist, phy)
+  if (is.na(formula)) {
+    if (length(covars)==0) {
+      formula <- stats::as.formula(paste0("dist ~ ", var))
+    } else {
+      formula <- stats::as.formula(paste0("dist ~ ", var,
+                                          " + ",
+                                          paste(covars, collapse = " + ")))
+    }
+  }
+  if (verbose) {
+    print(table(phenodata[[var]]))
+    print(formula)
+  }
+  doParallel::registerDoParallel(nproc)
+  if (is.na(block)) {
+    set.seed(seed)
+    res <- vegan::adonis2(formula,
+                          data = phenodata,
+                          by = by,
+                          permutations = nperm,
+                          parallel = nproc)
+  } else { # block design, allows to constrain permutations within each block/strata
+    if (verbose) {print(paste0("Correcting for strata using block design for ", block))}
+    perm <- permute::how(nperm = nperm)
+    set.seed(seed)
+    assign(block, block)
+    permute::setBlocks(perm) <- with(phenodata, get(block))
+    res <- vegan::adonis2(formula,
+                          data = phenodata,
+                          by = by,
+                          permutations = perm,
+                          parallel = nproc)
+  }
+  if (verbose) {
+    print(res)
+  }
+  res_df <- data.frame(res) %>%
+    dplyr::mutate(variable = rownames(.)) %>%
+    dplyr::rename(pval = colnames(.)[5]) %>%
+    dplyr::mutate(n = nrow(phenodata),
+                  n_missing = phyloseq::nsamples(phy) - nrow(phenodata))
+  return(res_df)
 }
 
