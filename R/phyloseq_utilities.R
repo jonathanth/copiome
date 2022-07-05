@@ -333,7 +333,7 @@ filter_phy <-  function(phy, abundance=NULL, prevalence=NULL, compositional=TRUE
 #' @importFrom magrittr %>%
 get_virome_host_phy <- function(phy) {
   taxmat <- tax_df(phy) %>%
-    dplyr::select_at(.vars=c("hostTaxid", "hostKingdom", "hostPhylum", "hostClass",
+    dplyr::select_at(.vars=c("hostKingdom", "hostPhylum", "hostClass",
                              "hostOrder", "hostFamily", "hostGenus", "hostSpecies",
                              "species", "OTU"))
   phyloseq::tax_table(phy) <- phyloseq::tax_table(as.matrix(taxmat))
