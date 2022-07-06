@@ -20,4 +20,8 @@ Imports:
     broom,
     methods,
     survival,
-    rlang
+    rlang,
+    doParallel,
+    permute,
+    stringr,
+    vegan
