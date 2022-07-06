@@ -416,6 +416,7 @@ myadonis <- function(dist,
       phenodata <- phenodata[phenodata[[stringr::str_replace(var, "transient", "ever")]] == 0 | phenodata[[var]] == 1, ]
     }
   }
+  phy <- subset_samples(phy, sample_names(phy) %in% rownames(phenodata))
   dist <-  subset_dist(dist, phy)
   if (is.na(formula)) {
     if (length(covars)==0) {
