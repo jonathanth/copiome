@@ -396,6 +396,7 @@ myadonis <- function(dist,
                      phy,
                      var,
                      covars=c(),
+                     interaction=NA,
                      formula = NA,
                      nproc = 1,
                      seed = 123,
@@ -418,6 +419,7 @@ myadonis <- function(dist,
   }
   phy <- phyloseq::prune_samples(rownames(phenodata), phy)
   dist <-  subset_dist(dist, phy)
+  if (!is.na(interaction)) {var <- paste0(var, "*", interaction)}
   if (is.na(formula)) {
     if (length(covars)==0) {
       formula <- stats::as.formula(paste0("dist ~ ", var))
@@ -426,6 +428,8 @@ myadonis <- function(dist,
                                           " + ",
                                           paste(covars, collapse = " + ")))
     }
+  } else {
+    formula <- stats::as.formula(formula)
   }
   if (verbose) {
     print(table(phenodata[[var]]))

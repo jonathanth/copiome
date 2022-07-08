@@ -9,6 +9,7 @@ myadonis(
   phy,
   var,
   covars = c(),
+  interaction = NA,
   formula = NA,
   nproc = 1,
   seed = 123,
