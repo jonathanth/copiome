@@ -30,6 +30,8 @@ myadonis(
 
 \item{covars}{Vector of covariates to adjust for.}
 
+\item{interaction}{Interaction term.}
+
 \item{formula}{User-specified formula. If not provided, `dist ~ var (+ covars)`.}
 
 \item{nproc}{Number of parallel processors available to use.}

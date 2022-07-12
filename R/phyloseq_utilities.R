@@ -163,22 +163,16 @@ abundance_df = function(phy, taxa=FALSE, sample=FALSE, id=character(0),
 #' prev <- prevalence_df(GlobalPatterns, tax = TRUE)
 #' head(prev)
 prevalence_df <-  function(phy, taxa = FALSE) {
-  . <- n <- N <- freq <- NULL
-  prev <- phy %>%
-    transform_phy(., transform="pa") %>%
-    otu_df(.)
-
-  prevdf = data.frame(tax = rep(phyloseq::taxa_names(phy),
-                                each = phyloseq::nsamples(phy)),
-                      n = unname(rowSums(prev)),
-                      N = ncol(prev)) %>%
-    dplyr::mutate(., freq = n/N,
-           prevalence = freq*100)
+  prevdf <- data.frame(tax = phyloseq::taxa_names(phy),
+                     n = otu_df(phy %>%
+                                  transform_phy(., transform="pa")) %>%
+                       colSums(),
+                     N = phyloseq::nsamples(phy)) %>%
+    dplyr::mutate(freq = n / N, prevalence = freq * 100)
 
   if (taxa) {
     prevdf <- prevdf %>%
-      dplyr::left_join(., tax_df(phy) %>%
-                         dplyr::mutate(tax = phyloseq::taxa_names(phy)))
+      dplyr::left_join(., tax_df(phy))
   }
 
   return(prevdf)
@@ -365,6 +359,7 @@ na_phy <- function(phy) {
 #' @param phy Phyloseq object.
 #' @param var Variable outcome of interest.
 #' @param covars Vector of covariates to adjust for.
+#' @param interaction Interaction term.
 #' @param formula User-specified formula. If not provided, `dist ~ var (+ covars)`.
 #' @param nproc Number of parallel processors available to use.
 #' @param seed Random seed. Default is `123`.
