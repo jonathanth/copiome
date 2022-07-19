@@ -107,20 +107,16 @@ tax_df = function(phy) {
 abundance_df = function(phy, taxa=FALSE, sample=FALSE, id=character(0),
                         vars=c()) {
   . <- NULL
-  ab <- otu_df(phy) %>%
-    tidyr::pivot_longer(cols = colnames(.),
-                        names_to="tax",
-                        values_to="abundance") %>%
-    dplyr::mutate(id = rep(phyloseq::sample_names(phy),
-                           each=phyloseq::ntaxa(phy)),
-                  tax = rep(phyloseq::taxa_names(phy),
-                              each=phyloseq::nsamples(phy))) %>%
-    dplyr::select(id, dplyr::everything())
+  ab <- phyloseq::otu_table(phy) %>%
+    reshape2::melt(value.name = "abundance") %>%
+    dplyr::rename(tax = Var1) %>%
+    dplyr::mutate(tax = as.character(tax))
 
   if (!rlang::is_empty(id)) {
     ab <- ab %>%
-      dplyr::mutate(abcno = rep(sample_df(phy)[[id]],
-                                each=phyloseq::ntaxa(phy)))
+      dplyr::rename(abcno = Var2)
+  } else {
+    colnames(ab)[2] <- "id"
   }
   if (taxa) {
     group <- utils::tail(colnames(tax_df(phy))[colnames(tax_df(phy)) != "tax"], 1)
