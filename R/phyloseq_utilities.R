@@ -104,15 +104,16 @@ tax_df = function(phy) {
 #' data(GlobalPatterns)
 #' ab <- abundance_df(GlobalPatterns, taxa = TRUE, sample = TRUE, vars = c("SampleType"))
 #' head(ab)
-abundance_df = function(phy, taxa=FALSE, sample=FALSE, id=character(0),
+abundance_df = function(phy, taxa=FALSE, sample=FALSE, id=NA,
                         vars=c()) {
   . <- NULL
   ab <- phyloseq::otu_table(phy) %>%
     reshape2::melt(value.name = "abundance") %>%
     dplyr::rename(tax = Var1) %>%
-    dplyr::mutate(tax = as.character(tax))
+    dplyr::mutate(tax = as.character(tax),
+                  Var2 = as.character(Var2))
 
-  if (!rlang::is_empty(id)) {
+  if (!is.na(id)) {
     ab <- ab %>%
       dplyr::rename(abcno = Var2)
   } else {
@@ -131,7 +132,7 @@ abundance_df = function(phy, taxa=FALSE, sample=FALSE, id=character(0),
   }
   if (sample) {
     sam <- sample_df(phy) %>%
-      dplyr::mutate(id = phyloseq::sample_names(phy))
+      dplyr::mutate(id = as.character(phyloseq::sample_names(phy)))
     if (length(vars)>0) {
      sam <- sam %>%
         dplyr::select_at(.vars=vars) %>%

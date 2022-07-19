@@ -4,7 +4,7 @@
 \alias{abundance_df}
 \title{Return abundance long-formatted data.frame from phyloseq object.}
 \usage{
-abundance_df(phy, taxa = FALSE, sample = FALSE, id = character(0), vars = c())
+abundance_df(phy, taxa = FALSE, sample = FALSE, id = NA, vars = c())
 }
 \arguments{
 \item{phy}{A phyloseq object}
