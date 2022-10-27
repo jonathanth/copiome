@@ -293,7 +293,7 @@ filter_phy <-  function(phy, abundance=NULL, prevalence=NULL, compositional=TRUE
   if (!is.null(abundance)) {
     phyt <- phyloseq::filter_taxa(phyt, function(x) mean(x) > abundance, TRUE)
   }
-  if (!is.na(prevalence)) {
+  if (!is.null(prevalence)) {
     phyt <- phyloseq::prune_taxa(phyloseq::taxa_sums(transform_phy(phyt, transform="pa"))
                      >= ceiling(prevalence * phyloseq::nsamples(phy) / 100), phyt)
   }
