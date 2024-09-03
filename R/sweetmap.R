@@ -126,7 +126,6 @@ lo = function(rown, coln, nrow, ncol, cellheight = NA, cellwidth = NA, treeheigh
   else{
     mat_height = unit(cellheight * nrow, "bigpts") + length(gaps_row) * unit(4, "bigpts")
   }    
-  print(tw[1])
   
   
   # Produce gtable with adjusted layout for row dendrogram on the right
